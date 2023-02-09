@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+
+%%%%%%%%%%%%%%%% Lengths %%%%%%%%%%%%%%%%
+\setlength{\textwidth}{16cm}
+\setlength{\evensidemargin}{0.3cm}
+\setlength{\oddsidemargin}{0.3cm}
+
+%%%%%%%%%%%%%%%% Variables %%%%%%%%%%%%%%%%
+\def\projet{2}
+\def\titre{Résolution de systèmes linéaires, application à l'équation de la chaleur}
+\def\groupe{1}
+\def\equipe{5}
+\def\responsible{sdribialaou}
+\def\secretary{cdomas}
+\def\others{mbouhaja, alagraoui001}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%% Header %%%%%%%%%%%%%%%%
+\noindent\begin{minipage}{0.98\textwidth}
+  \vskip 0mm
+  \noindent
+  { \begin{tabular}{p{7.5cm}}
+      {\bfseries \sffamily
+        Projet \projet} \\ 
+      {\itshape \titre}
+    \end{tabular}}
+  \hfill 
+  \fbox{\begin{tabular}{l}
+      {~\hfill \bfseries \sffamily Groupe \groupe\ - Équipe \equipe
+        \hfill~} \\[2mm] 
+      Responsable : \responsible \\
+      Secrétaire : \secretary \\
+      Codeurs : \others
+    \end{tabular}}
+  \vskip 4mm ~
+
+  ~~~\parbox{0.95\textwidth}{\small \textit{Résumé~:} \sffamily Le but de ce projet consiste à implémenter des algorithmes de résolution de systèmes linéaires de grande taille, et à les appliquer à un problème de résolution d’équation aux dérivées partielles. Dans ce projet, on considère uniquement des systèmes linéaires symétriques, définis positifs et creux (ne comportant que relativement peu d’éléments non nuls), et on exploite ces trois propriétés pour obtenir des algorithmes plus efficaces. }
+  \vskip 1mm ~
+\end{minipage}
+
+%%%%%%%%%%%%%%%% Main part %%%%%%%%%%%%%%%%
+
+\section{Résolution de systèmes linéaires}
+
+\section{Application à l'équation de la chaleur}
+
+\end{document}
