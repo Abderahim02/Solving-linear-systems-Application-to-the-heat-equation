@@ -1,5 +1,8 @@
 import numpy as np 
 
+
+### Décomposition de Cholesky ###
+
 def cholesky(A):
     n=A.shape[0]
     T=np.zeros((n,n))
@@ -23,5 +26,36 @@ def test_chloesky():
                 [1,5,14,15]])
     print(cholesky(A))
 
-test_chloesky()
+
+    
+
+
+### Méthode du gradient conjugué ###
+
+def conjgrad(A, b, x):
+    n = len(b)
+    A_cmp = np.zeros((n, n))
+
+    
+
+    r = b - A.dot(x)
+    p = r
+    rsold = r.dot(r)
+
+    for i in range(n):
+        Ap = A.dot(p)
+        alpha = rsold / p.dot(Ap)
+        x = x + alpha * p
+        r = r - alpha * Ap
+        rsnew = r.dot(r)
+        if np.sqrt(rsnew) < 1e-10:
+            break
+        p = r + (rsnew / rsold) * p
+        rsold = rsnew
+    return x
+
+
+
+
+    
     
