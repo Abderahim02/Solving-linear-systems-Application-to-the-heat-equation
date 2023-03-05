@@ -2,6 +2,7 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage[T1]{fontenc}
 
@@ -61,11 +62,53 @@ est une matrice triangulaire inférieure obtenue par les formules suivantes :
 
 \[ \large t_{i, j} = \left\{
     \begin{array}{cr}
-        \rule{0pt}{2.5ex} \sqrt{ a_{i,i} - \sum_{k=1}^{i-1} t_{i,k}^{2}} & \mbox{si } j=i \\
+        \rule{0pt}{2.5ex} \sqrt{ a_{i,i} - \sum_{k=1}^{i-1} t_{i,k}^{2}} & \mbox{si } i=j \\
         \rule{0pt}{4ex} \frac{ \LARGE a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
     \end{array}
 \right.\]
+\subsubsection{Implémentation de l'algorithme}
+Le principe algorithmique de la fonction $cholesky(A)$ consiste à créer une matrice nulle $T$ de taille $(n,n)$, puis effectue 
+un parcours de la matrice $A$ avec deux boucles imbriquées. D'après les formules précédentes, le calcul du coefficient $t_{i,j}$ 
+à chaque itération $i$ est en complexité $O(i)$. Et puis le calcul de toutes les colonnes $C_{j}$ avec $i\leq j$ est en complexité 
+$O(\frac{n(n-i)}{2})$. En conclusion, l'algorithme est en complexité $O(\frac{n^{3}}{4})$.
+\subsection{Génération de matrices symétriques définies positives creuses}
+Les matrices symétriques définies positives creuses sont des matrices qui contiennent un certain nombre de coefficients nuls, 
+ils sont utiles dans le préconditionnement des systèmes linéaires. Afin de générer des telles matrices avec un nombre de termes 
+extra-diagonaux non nuls réglable, on profite de la propriété qui dit que toute matrice symétrique dont tous les coefficients sont 
+positives est une matrice définie positive. Ainsi, l'algorithme crée une matrice nulle est la remplit avec des valeurs positives, 
+en veillant à ce que la matrice reste symétrique, jusqu'à atteindre le nombre de coefficients non nuls désiré.
 
+\subsection{Méthode du gradient conjugué}
+
+On définit l'erreur relative $rsnew$ telle que :
+\begin{equation*}
+  rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}
+\end{equation*}
+La méthode du gradient conjugué consiste à trouver une solution $x$ en minimisant
+$rsnew$ de manière itérative. 
+Cette méthode calcule d'abord une direction de descente en choisissant  ($p=b-Ax$) comme 
+première direction de recherche. Ce calcul est ensuite mis à jour : à chaque étape, on calcule une nouvelle 
+direction en combinant la direction précédente avec la nouvelle direction de 
+recherche ($r=r+\beta*p$). Après un nombre fini d'itérations\footnote{correspondant à la taille du vecteur b}
+notre algorithme converge vers la solution optimale avec une erreur relative minimale.
+
+
+\paragraph{Exemple}
+On montre dans cette partie la valeur du vecteur x à chaque itérations dans la fonction
+du gradient conjugué. Donc on prend une matrice d'ordre 3 et un vecteur b qui sont définie comme suit:
+
+$A=
+\begin{pmatrix}
+  3&2&-5 \\ 1&5&10 \\ 6&4&5
+\end{pmatrix}
+$
+$b=
+\begin{pmatrix}
+  20 
+  \\ -7 \\
+    5
+\end{pmatrix}
+$
 
 
 \section{Application à l'équation de la chaleur}
