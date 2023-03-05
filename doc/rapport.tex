@@ -16,9 +16,9 @@
 \def\titre{Résolution de systèmes linéaires, application à l'équation de la chaleur}
 \def\groupe{1}
 \def\equipe{5}
-\def\responsible{sdribialaou}
-\def\secretary{cdomas}
-\def\others{mbouhaja, alagraoui001}
+\def\responsible{DRIBI ALAOUI Sarah}
+\def\secretary{DOMAS Corentin}
+\def\others{BOUHAJA Mohammed, LAGRAOUI Abderahim}
 
 \begin{document}
 
@@ -41,8 +41,8 @@
     \end{tabular}}
   \vskip 4mm ~
 
-  ~~~\parbox{0.95\textwidth}{\small \textit{Résumé~:} \sffamily Le but de ce projet consiste à implémenter des algorithmes de résolution de systèmes linéaires de grande taille, et à les appliquer à un problème de résolution d’équation aux dérivées partielles. Dans ce projet, on considère uniquement des systèmes linéaires symétriques, définis positifs et creux (ne comportant que relativement peu d’éléments non nuls), et on exploite ces trois propriétés pour obtenir des algorithmes plus efficaces. }
-  \vskip 1mm ~
+  % ~~~\parbox{0.95\textwidth}{\small \textit{Résumé~:} \sffamily Le but de ce projet consiste à implémenter des algorithmes de résolution de systèmes linéaires de grande taille, et à les appliquer à un problème de résolution d’équation aux dérivées partielles. Dans ce projet, on considère uniquement des systèmes linéaires symétriques, définis positifs et creux (ne comportant que relativement peu d’éléments non nuls), et on exploite ces trois propriétés pour obtenir des algorithmes plus efficaces. }
+  % \vskip 1mm ~
 \end{minipage}
 
 %%%%%%%%%%%%%%%% Main part %%%%%%%%%%%%%%%%
@@ -53,54 +53,60 @@
 % Les méthodes directes sont souvent plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée.
 
 % Dans ce projet, on s'intéresse aux deux méthodes avec l'exemple de la décomposition de cholesky pour les méthodes directes et la méthode du gradient conjugué pour les méthodes itératives.
-Pour résoudre un système linéaire $A.x = b$, ils existent deux approches principales: les méthodes directes et les méthodes itératives. Les méthodes directes sont plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. Nous explorons les deux approches dans ce projet, avec la décomposition de $Cholesky$ comme exemple de méthode directe et la méthode du gradient conjugué comme exemple de méthode itérative.
+Pour résoudre un système linéaire $A.x = b$, il existe deux types de méthodes permettant une approche différente : les méthodes directes et les méthodes itératives. Si les méthodes directes sont plus précises, elles peuvent être plus coûteuses en temps de calcul et en espace mémoire.
+Les méthodes itératives sont quant à elles plus efficaces pour les très grands systèmes linéaires, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. 
+Dans ce rapport, nous explorons ces deux approches. Nous étudions ainsi la décomposition de $Cholesky$ et la méthode du gradient conjugué, deux méthodes respectivement directe et itérative. \\
+
+Soit $n$ un entier naturel. On pose $E$ l'équation $(E) : A.x = b$, avec $A \in S_n^{++}$ l'ensemble des matrices symétriques définies positives carrées de taille $n$, $b$ et $x$ deux vecteurs colonnes de taille $n$.\\
+
 \subsection{Décomposition de Cholesky}
-Soit $(E) : A.x = b$ un système linéaire où $A$ est une matrice symétrique définie positive de taille $(n,n)$
-et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel.
-L'algorithme de $cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{t}.T$ où $T$
+
+L'algorithme de $Cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{T} \cdot T$ où $T$
 est une matrice triangulaire inférieure obtenue par les formules suivantes :
 
-\[ \large t_{i, j} = \left\{
+\begin{equation*}
+t_{i, j} = 
     \begin{array}{cr}
         \rule{0pt}{2.5ex} \sqrt{ a_{i,i} - \sum_{k=1}^{i-1} t_{i,k}^{2}} & \mbox{si } j=i \\
-        \rule{0pt}{4ex} \frac{ \LARGE a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
+        \rule{0pt}{4ex} \frac{ a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
     \end{array}
-\right.\]
+\end{equation*}
+
+\subsection{Décomposition de Cholesky incomplète}
+
 
 \subsection{Méthode du gradient conjugué}
 
-
-Afin d'obtenir la solution d'un système d'équation linéaires $A.x = b$ (où A est 
-une matrice symétrique définie positive et b un vecteur), on utilise la méthode du gradient 
-conjugué.
-
-
-Cette méthode consiste à trouver une solution $x$ en minimisant l'erreur relative 
-$rsnew$ ($rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}$) d'une manière itérative, 
-elle calcule au début une direction de descente en choisissant  ($p=b-Ax$) comme 
-première direction de recherche, puis il est mis à jour à chaque étape on calcule une nouvelle 
+On définit l'erreur relative $rsnew$ telle que :
+\begin{equation*}
+  rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}
+\end{equation*}
+La méthode du gradient conjugué consiste à trouver une solution $x$ en minimisant
+$rsnew$ de manière itérative. 
+Cette méthode calcule d'abord une direction de descente en choisissant  ($p=b-Ax$) comme 
+première direction de recherche. Ce calcul est ensuite mis à jour : à chaque étape, on calcule une nouvelle 
 direction en combinant la direction précédente avec la nouvelle direction de 
-recherche ($r=r+\beta*p$). Après un nombre fini d'itérations (la taille du vecteur b)
-notre algorithme converge vers la solution optimal avec une erreur relative minimal.
+recherche ($r=r+\beta*p$). Après un nombre fini d'itérations\footnote{correspondant à la taille du vecteur b}
+notre algorithme converge vers la solution optimale avec une erreur relative minimale.
 
 
 \paragraph{Exemple}
 On montre dans cette partie la valeur du vecteur x à chaque itérations dans la fonction
 du gradient conjugué. Donc on prend une matrice d'ordre 3 et un vecteur b qui sont définie comme suit:
 
-$A=$\begin{pmatrix}
+$A=
+\begin{pmatrix}
   3&2&-5 \\ 1&5&10 \\ 6&4&5
 \end{pmatrix}
-$b=$\begin{pmatrix}
+$
+$b=
+\begin{pmatrix}
   20 
   \\ -7 \\
     5
 \end{pmatrix}
+$
 
-
-\subsection{Décomposition de Cholesky}
-
-\subsection{Méthode du gradient conjugué}
 
 \section{Application à l'équation de la chaleur}
 

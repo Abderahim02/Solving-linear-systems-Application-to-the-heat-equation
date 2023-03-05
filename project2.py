@@ -5,46 +5,61 @@ import matplotlib.pyplot as plt
 ### ##Décomposition de Cholesky ##########################################
 def cholesky(A):
     n = len(A)
-    L = np.zeros((n,n))
+    L = np.zeros((n, n))
     for i in range(n):
         for k in range(i+1):
             tmp_sum = sum(L[i][j] * L[k][j] for j in range(k))
             if (i == k):
                 L[i][k] = np.sqrt(A[i][i] - tmp_sum)
             else:
-                L[i][k] = (1 / L[k][k] ) * (A[i][k] - tmp_sum)
+                L[i][k] = (1 / L[k][k]) * (A[i][k] - tmp_sum)
     return L
 
-def test_chloesky():
-    A=np.array([[1,1,1,1],
-                [1,5,5,5],
-                [1,5,14,14],
-                [1,5,14,15]])
 
-    B=np.array([[1,1,1,1],
-                [1,2,2,2],
-                [1,2,3,3],
-                [1,2,3,4]])
+def test_chloesky():
+    A = np.array([[1, 1, 1, 1],
+                  [1, 5, 5, 5],
+                  [1, 5, 14, 14],
+                  [1, 5, 14, 15]])
+
+    cA = np.linalg.cholesky(A)
+
+    B = np.array([[1, 1, 1, 1],
+                  [1, 2, 2, 2],
+                  [1, 2, 3, 3],
+                  [1, 2, 3, 4]])
+
+    cB = np.linalg.cholesky(B)
+
     print(cholesky(A))
+    print(cA)
+
     print("\n")
     print(cholesky(B))
+    print(cB)
+
+
 test_chloesky()
-  
-####Décomposition incomplete de Cholesky ###########################################
+
+# %% ###Décomposition incomplete de Cholesky ###########################################
+
+
 def cholesky_incomplete(A):
     n = len(A)
-    L = np.zeros((n,n))
+    L = np.zeros((n, n))
     for i in range(n):
         for k in range(i+1):
-            if ( A[i][k] != 0):
+            if (A[i][k] != 0):
                 tmp_sum = sum(L[i][j] * L[k][j] for j in range(k))
                 if (i == k):
                     L[i][k] = np.sqrt(A[i][i] - tmp_sum)
                 else:
-                    L[i][k] = (1 / L[k][k] ) * (A[i][k] - tmp_sum)
+                    L[i][k] = (1 / L[k][k]) * (A[i][k] - tmp_sum)
     return L
 
-######Génération de matrices symetriques positives #################################""""
+# %% #####Génération de matrices symetriques positives #################################""""
+
+
 def matrix_sn_generator(m, n):
     max_value = 5 #la valeur maximale qu'un coefficient peut prendre 
     L = np.zeros((n,n)) #matrice nulle
@@ -62,7 +77,17 @@ def matrix_sn_generator(m, n):
                     return L
     return L
 
-def is_dominant_diagonal_matrix(matrix): #une fonction pour le tests
+
+def test_chloesky_incomplete(m, n):
+    test_matrix = matrix_sn_generator(m, n)
+    chol_exp = np.linalg.cholesky(test_matrix)
+    chol_out = cholesky_incomplete(test_matrix)
+    print(chol_exp)
+    print(chol_out)
+    return np.allclose(chol_exp, chol_out)
+
+
+def is_dominant_diagonal_matrix(matrix):  # une fonction pour le tests
     n, m = np.shape(matrix)
     if n != m:
         return False
@@ -76,7 +101,7 @@ def is_dominant_diagonal_matrix(matrix): #une fonction pour le tests
             somme += matrix[i][j]
         print(somme)
         row_sum = somme - diag_val
-        if diag_val <= row_sum:
+        if (diag_val <= row_sum):
             return False
     return True
 
@@ -85,8 +110,9 @@ def test_matrix_sn_generator():
     print(matrix)
     print(is_dominant_diagonal_matrix(matrix))
     print("\n")
-test_matrix_sn_generator()
 
+
+test_matrix_sn_generator(8, 4)
 
 
 ## préconditionneur
@@ -413,6 +439,4 @@ def find_A_and_b(N, f):
 
 
 
-
-
-
+# %%
