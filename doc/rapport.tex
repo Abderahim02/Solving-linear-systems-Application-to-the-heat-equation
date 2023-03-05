@@ -2,7 +2,6 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage[T1]{fontenc}
 
@@ -67,37 +66,9 @@ est une matrice triangulaire inférieure obtenue par les formules suivantes :
     \end{array}
 \right.\]
 
-\subsection{Méthode du gradient conjugué}
-
-
-Afin d'obtenir la solution d'un système d'équation linéaires $A.x = b$ (où A est 
-une matrice symétrique définie positive et b un vecteur), on utilise la méthode du gradient 
-conjugué.
-
-
-Cette méthode consiste à trouver une solution $x$ en minimisant l'erreur relative 
-$rsnew$ ($rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}$) d'une manière itérative, 
-elle calcule au début une direction de descente en choisissant  ($p=b-Ax$) comme 
-première direction de recherche, puis il est mis à jour à chaque étape on calcule une nouvelle 
-direction en combinant la direction précédente avec la nouvelle direction de 
-recherche ($r=r+\beta*p$). Après un nombre fini d'itérations (la taille du vecteur b)
-notre algorithme converge vers la solution optimal avec une erreur relative minimal.
-
-
-\paragraph{Exemple}
-On montre dans cette partie la valeur du vecteur x à chaque itérations dans la fonction
-du gradient conjugué. Donc on prend une matrice d'ordre 3 et un vecteur b qui sont définie comme suit:
-
-$A=$\begin{pmatrix}
-  3&2&-5 \\ 1&5&10 \\ 6&4&5
-\end{pmatrix}
-$b=$\begin{pmatrix}
-  20 
-  \\ -7 \\
-    5
-\end{pmatrix}
 
 
 \section{Application à l'équation de la chaleur}
+\subsection{Méthode du gradient conjugué}
 
 \end{document}
