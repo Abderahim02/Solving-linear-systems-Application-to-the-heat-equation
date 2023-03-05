@@ -47,7 +47,25 @@
 %%%%%%%%%%%%%%%% Main part %%%%%%%%%%%%%%%%
 
 \section{Résolution de systèmes linéaires}
+% Soit un système linéaire $A.x = b$ où $A$ est une matrice carrée de taille $(n,n)$ et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel. La résolution de ce système consiste à trouver des valeurs du vecteur $x$ qui le vérifie. Pour cela, les études en algèbre linéaire fournissent plusieurs méthodes qui peuvent être directes ou itératives.
+
+% Les méthodes directes sont souvent plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée.
+
+% Dans ce projet, on s'intéresse aux deux méthodes avec l'exemple de la décomposition de cholesky pour les méthodes directes et la méthode du gradient conjugué pour les méthodes itératives.
+Pour résoudre un système linéaire $A.x = b$, ils existent deux approches principales: les méthodes directes et les méthodes itératives. Les méthodes directes sont plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. Nous explorons les deux approches dans ce projet, avec la décomposition de $Cholesky$ comme exemple de méthode directe et la méthode du gradient conjugué comme exemple de méthode itérative.
 \subsection{Décomposition de Cholesky}
+Soit $(E) : A.x = b$ un système linéaire où $A$ est une matrice symétrique définie positive de taille $(n,n)$
+et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel.
+L'algorithme de $cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{t}.T$ où $T$
+est une matrice triangulaire inférieure obtenue par les formules suivantes :
+
+\[ \large t_{i, j} = \left\{
+    \begin{array}{cr}
+        \rule{0pt}{2.5ex} \sqrt{ a_{i,i} - \sum_{k=1}^{i-1} t_{i,k}^{2}} & \mbox{si } j=i \\
+        \rule{0pt}{4ex} \frac{ \LARGE a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
+    \end{array}
+\right.\]
+
 
 
 \section{Application à l'équation de la chaleur}
