@@ -243,6 +243,8 @@ norms_compare(40)
 
 ######TROISIEME PARTIE #################################""""
 def find_A_and_b(N, f):
+    # N*N désigne le nombre de points de la discrétisation spatiale
+    # f désigne la fonction f:(x,y)->f(x,y) représentant le flux
     # Utilisation de la méthode de différences finies pour discrétisation de l'espace
     # dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
     h = 1 / (N + 1)
