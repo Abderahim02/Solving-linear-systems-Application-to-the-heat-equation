@@ -122,6 +122,24 @@ def conjgrad(A, b, x):
     return x
 
 
+def conjgrad_precond(A, b, x, M):
+    n = len(b)
+    r = b - A.dot(x) 
+    p = r
+    rsold = np.dot(r.T, r)
+    for i in range(n):
+        Ap = A.dot(p)
+        Map = M.dot(Ap)
+        alpha = rsold/(np.dot(p.T, Map))
+        x = x + alpha * np.dot(M,p)
+        r = r - alpha * Map
+        rsnew = np.dot(r.T, r)
+        if np.sqrt(rsnew) < 1e-10:
+            break
+        p = r + (rsnew / rsold) * p
+        rsold = rsnew
+    return x
+
 ##simulation..............................
 def vector_generator(n):
     max_value = 5
@@ -151,6 +169,42 @@ def conjgrad_simulation(A, b, x):
         x = x + alpha * p
         r = r - alpha * Ap
         rsnew = r.dot(r)
+        #norme 1 
+        tmp_diff_1 = np.linalg.norm(theorique_solution - x, ord=1)
+        norme_x_1 =  np.linalg.norm( x, ord = 1)
+        #norme 2
+        tmp_diff_2 = np.linalg.norm(theorique_solution - x)
+        norme_x_2 =  np.linalg.norm(x)
+        #norme definie par la matrice A appartenat à Sn+  
+        tmp_diff_A = calcul_normeA(theorique_solution - x, A)
+        norme_x_A =  calcul_normeA(x, A)
+        #stockage des valeurs 
+        simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
+        simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
+        simulation_vector_normA.append( tmp_diff_A/norme_x_A)
+        if np.sqrt(rsnew) < 1e-10:
+            break
+        p = r + (rsnew / rsold) * p
+        rsold = rsnew
+    return [x, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
+
+def conjgrad_prec_simulation(A, b, x, M):
+    n = len(b)
+    A_cmp = np.zeros((n, n))
+    r = b - A.dot(x)
+    p = r
+    rsold = r.dot(r)
+    simulation_vector_norm1 = []
+    simulation_vector_norm2 = []
+    simulation_vector_normA = []
+    theorique_solution = np.linalg.solve(A,b)
+    for i in range(n):
+        Ap = A.dot(p)
+        Map = M.dot(Ap)
+        alpha = rsold/(np.dot(p.T, Map))
+        x = x + alpha * np.dot(M,p)
+        r = r - alpha * Map
+        rsnew = np.dot(r.T, r)
         #norme 1 
         tmp_diff_1 = np.linalg.norm(theorique_solution - x, ord=1)
         norme_x_1 =  np.linalg.norm( x, ord = 1)
@@ -228,10 +282,6 @@ def norms_compare(n):
     b = vector_generator(n)
     solution = conjgrad_simulation(A, b, x_random)
     x = np.linspace(0, len(solution[1]), len(solution[1]))
-    print(solution[1])
-    print(solution[2])
-    print(solution[3])
-
     plt.plot(x,solution[1], label= 'avec la norme 1')
     plt.plot(x,solution[2], label= 'avec la norme 2')
     plt.plot(x,solution[3], label= 'avec la norme définie par A')
@@ -241,31 +291,49 @@ def norms_compare(n):
     plt.show()
 norms_compare(40)
 
+def conditionner_generator(A):
+    T = cholesky(A)
+    T_inv= np.linalg.inv(T)
+    return np.dot(np.transpose(T_inv), T_inv )
+def conj_compare(n):
+    np.random.seed(100)
+    A = matrix_sn_generator(n/2, n)
+    x_random = vector_generator(n)
+    b = vector_generator(n)
+    M = conditionner_generator(A)
 
+    solution = conjgrad_simulation(A, b, x_random)
+    solution_prec = conjgrad_prec_simulation(A, b, x_random, M)
+    print(solution[2])
+    print(solution_prec[2])
+    x_1 = np.linspace(0, len(solution[2]), len(solution[2]))
+    x_2 = np.linspace(0, len(solution_prec[2]), len(solution_prec[2]))
+    #plt.plot(x_1,solution[2], label= 'sans préconditionnement')
+    plt.plot(x_2,solution_prec[2], label= 'avec sans préconditionnement')
+    plt.xlabel("Le nombre ditérations")
+    plt.ylabel("L'erreur relative de la solution")
+    plt.legend()
+    plt.show()
+conj_compare(10)
 
-    def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f fonction caractérisant le flux de la chaleur
-#
+def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f fonction caractérisant le flux de la chaleur
     # Construction de la matrice A
-        matrice = np.zeros((N**2,N**2))
-        for i in range(len(matrice)):
-            for j in range(len(matrice)):
-                if j == i-1:
-            
-                   matrice[i][j] = 1/h**2
-                if j == i-N:
-                    matrice[i][j] = 1/h**2
-                if j==i:
-                    matrice[i][j] = -4/h**2
-                if j==i+1:
-                    matrice[i][j] = 1/h**2
-                if j==i+N:
-                    matrice[i][j] = 1/h**2
-            
-
+    matrice = np.zeros((N**2,N**2))
+    for i in range(len(matrice)):
+        for j in range(len(matrice)):
+            if j == i-1:    
+                matrice[i][j] = 1/h**2
+            if j == i-N:
+                matrice[i][j] = 1/h**2
+            if j==i:
+                matrice[i][j] = -4/h**2
+            if j==i+1:
+                matrice[i][j] = 1/h**2
+            if j==i+N:
+                matrice[i][j] = 1/h**2      
     # Construction du vecteur b
-
-     # Utilisation de la méthode de différences finis pour discrétisation de l'espace
-     #dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
+    # Utilisation de la méthode de différences finis pour discrétisation de l'espace
+    #dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
     h = 1 / (N + 1)
     x = np.linspace(h, 1 - h, N)
     y = np.linspace(h, 1 - h, N)
@@ -277,10 +345,9 @@ norms_compare(40)
     
     # Résolution du système linéaire ATx = b à l'aide de la méthode du gradient conjugué
      # Résolution du système linéaire ATx = b à l'aide de la méthode de cholesky dans un deuxieme temps
-     
     T= fonction_du_gradient(A, b)
-    
- #  T= fonction_de_cholesky(A, b)
+
+#  T= fonction_de_cholesky(A, b)
    
 
 
