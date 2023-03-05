@@ -241,7 +241,7 @@ def norms_compare(n):
     plt.show()
 norms_compare(40)
 
-
+######TROISIEME PARTIE #################################""""
 
     def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f fonction caractérisant le flux de la chaleur
 #
