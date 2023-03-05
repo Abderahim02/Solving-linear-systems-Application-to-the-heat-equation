@@ -121,6 +121,46 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 
+# def conjgrad_prec_simulation(A, b, M, x0, epsilon=1e-10, max_iterations=1000):
+#     r0 = b - A.dot(x0)
+#     z0 = np.linalg.solve(M, r0)
+#     p1 = z0
+#     w = A.dot(p1)
+#     alpha1 = np.dot(r0.T, z0) / np.dot(p1.T, w)
+#     x1 = x0 + alpha1 * p1
+#     r1 = r0 - alpha1 * w
+#     k = 1
+
+#     simulation_vector_norm1 = []
+#     simulation_vector_norm2 = []
+#     simulation_vector_normA = []
+#     theorique_solution = np.linalg.solve(A,b)
+
+#     while np.linalg.norm(rk) > epsilon and k < max_iterations:
+#         zk = np.linalg.solve(M, rk)
+#         beta_k = np.dot(rk.T, zk) / np.dot(r_km1.T, z_km1)
+#         p_kp1 = zk + beta_k * p_k
+#         w = A.dot(p_kp1)
+#         alpha_kp1 = np.dot(rk.T, zk) / np.dot(p_kp1.T, w)
+#         x_kp1 = x_k + alpha_kp1 * p_kp1
+#         rkp1 = rk - alpha_kp1 * w
+#         k += 1
+#         x_k, p_k, z_km1, r_km1, rk = x_kp1, p_kp1, zk, rk, rkp1
+#         #norme 1 
+#         tmp_diff_1 = np.linalg.norm(theorique_solution - x_k, ord=1)
+#         norme_x_1 =  np.linalg.norm( x_k, ord = 1)
+#         #norme 2
+#         tmp_diff_2 = np.linalg.norm(theorique_solution - x_k)
+#         norme_x_2 =  np.linalg.norm(x_k)
+#         #norme definie par la matrice A appartenat à Sn+  
+#         tmp_diff_A = calcul_normeA(theorique_solution - x_k, A)
+#         norme_x_A =  calcul_normeA(x_k, A)
+#         #stockage des valeurs 
+#         simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
+#         simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
+#         simulation_vector_normA.append( tmp_diff_A/norme_x_A)
+#     return [x_k, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
+
 
 def conjgrad_precond(A, b, x, M):
     n = len(b)
@@ -218,7 +258,7 @@ def conjgrad_prec_simulation(A, b, x, M):
         simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
         simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
         simulation_vector_normA.append( tmp_diff_A/norme_x_A)
-        if np.sqrt(rsnew) < 1e-10:
+        if np.sqrt(rsnew) < 1e-20:
             break
         p = r + (rsnew / rsold) * p
         rsold = rsnew
@@ -304,17 +344,18 @@ def conj_compare(n):
 
     solution = conjgrad_simulation(A, b, x_random)
     solution_prec = conjgrad_prec_simulation(A, b, x_random, M)
+    #solution_prec = conjgrad_prec_simulation(A, b,M, x_random)
     print(solution[2])
     print(solution_prec[2])
     x_1 = np.linspace(0, len(solution[2]), len(solution[2]))
     x_2 = np.linspace(0, len(solution_prec[2]), len(solution_prec[2]))
-    #plt.plot(x_1,solution[2], label= 'sans préconditionnement')
-    plt.plot(x_2,solution_prec[2], label= 'avec sans préconditionnement')
+    plt.plot(x_1,solution[2], label= 'sans préconditionnement')
+    plt.plot(x_2,solution_prec[2], label= 'avec préconditionnement')
     plt.xlabel("Le nombre ditérations")
     plt.ylabel("L'erreur relative de la solution")
     plt.legend()
     plt.show()
-conj_compare(10)
+conj_compare(40)
 
 def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f fonction caractérisant le flux de la chaleur
     # Construction de la matrice A
@@ -334,20 +375,40 @@ def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f 
     # Construction du vecteur b
     # Utilisation de la méthode de différences finis pour discrétisation de l'espace
     #dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
+######TROISIEME PARTIE #################################""""
+def find_A_and_b(N, f):
+    # N*N désigne le nombre de points de la discrétisation spatiale
+    # f désigne la fonction f:(x,y)->f(x,y) représentant le flux
+    # Utilisation de la méthode de différences finies pour discrétisation de l'espace
+    # dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
     h = 1 / (N + 1)
     x = np.linspace(h, 1 - h, N)
     y = np.linspace(h, 1 - h, N)
     X, Y = np.meshgrid(x, y, indexing='ij')
-    b=-f(X, Y)
-    b = b.flatten() #on transforme cette grille de N*N elements en un vecteur de N**2 éléments
-    
-    #Une fois la matrice A construite et le vecteur b construit ,ce n'est plus qu'un système linéaire
-    
-    # Résolution du système linéaire ATx = b à l'aide de la méthode du gradient conjugué
-     # Résolution du système linéaire ATx = b à l'aide de la méthode de cholesky dans un deuxieme temps
-    T= fonction_du_gradient(A, b)
 
-#  T= fonction_de_cholesky(A, b)
+    # Construction de la matrice A
+    A = np.zeros((N**2, N**2))
+    for i in range(len(A)):
+        for j in range(len(A)):
+            if j == i - 1:
+                A[i][j] = 1 / h**2
+            if j == i - N:
+                A[i][j] = 1 / h**2
+            if j == i:
+                A[i][j] = -4 / h**2
+            if j == i + 1:
+                A[i][j] = 1 / h**2
+            if j == i + N:
+                A[i][j] = 1 / h**2
+
+    # Construction du vecteur b
+    b = -f(X, Y)
+    b = b.flatten() #on transforme cette grille de N*N elements en un vecteur de N**2 éléments
+
+    # Une fois la matrice A construite et le vecteur b construit, ce n'est plus qu'un système linéaire
+    return [A, b]
+
+ 
    
 
 
