@@ -106,16 +106,15 @@ test_is_conditionner_complete()
 
 def conjgrad(A, b, x):
     n = len(b)
-    A_cmp = np.zeros((n, n))
-    r = b - A.dot(x)
+    r = b - np.dot(A, x)
     p = r
-    rsold = r.dot(r)
+    rsold = np.dot(r.T, r)
     for i in range(n):
-        Ap = A.dot(p)
-        alpha = rsold / p.dot(Ap)
+        Ap = np.dot(A, p)
+        alpha = rsold / np.dot(p.T, Ap)
         x = x + alpha * p
         r = r - alpha * Ap
-        rsnew = r.dot(r)
+        rsnew = np.dot(r.T, r)
         if np.sqrt(rsnew) < 1e-10:
             break
         p = r + (rsnew / rsold) * p
