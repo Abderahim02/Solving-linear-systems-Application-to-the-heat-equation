@@ -46,13 +46,12 @@ def cholesky_incomplete(A):
 
 ######Génération de matrices symetriques positives #################################""""
 def matrix_sn_generator(m, n):
-    max_value = 100 #la valeur maximale qu'un coefficient peut prendre 
+    max_value = 5 #la valeur maximale qu'un coefficient peut prendre 
     L = np.zeros((n,n)) #matrice nulle
     for i in range(n):  ##on remplit d'abord la diagonale aléatoirement
         L[i][i]=float(random.randint(1, max_value)) 
     i,j,added_coeff = 0, 0, n #added_coeff est le nombre de coefficents non nuls ajoutés
     for i in range (n):
-        print(L[i][i])
         for j in range (i+1, n):
             if ( i != j):
                 if(added_coeff < m ): #on remplit les elemtns extra diagonaux par des valeurs 
@@ -64,7 +63,6 @@ def matrix_sn_generator(m, n):
     return L
 
 def is_dominant_diagonal_matrix(matrix): #une fonction pour le tests
-    print(matrix)
     n, m = np.shape(matrix)
     if n != m:
         return False
@@ -124,19 +122,19 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 
+
 ##simulation..............................
 def vector_generator(n):
-    max_value = 100
+    max_value = 5
     return np.array([ random.randint(1, max_value) for i in range (n)])
 
 def matrix_generator(n):
-    max_value = 100
+    max_value = 5
     return np.array([ [random.randint(1, max_value) for i in range (n)] for j in range (n)])
 
 
 def calcul_normeA(y, A):
     return np.dot( np.dot(np.transpose(y), A), y)
-
 
 def conjgrad_simulation(A, b, x):
     n = len(b)
@@ -144,35 +142,105 @@ def conjgrad_simulation(A, b, x):
     r = b - A.dot(x)
     p = r
     rsold = r.dot(r)
-    simulation_vector = []
+    simulation_vector_norm1 = []
+    simulation_vector_norm2 = []
+    simulation_vector_normA = []
     theorique_solution = np.linalg.solve(A,b)
     for i in range(n):
         Ap = A.dot(p)
         alpha = rsold / p.dot(Ap)
         x = x + alpha * p
-        simulation_vector.append( calcul_normeA(theorique_solution - x, A))
         r = r - alpha * Ap
         rsnew = r.dot(r)
+        #norme 1 
+        tmp_diff_1 = np.linalg.norm(theorique_solution - x, ord=1)
+        norme_x_1 =  np.linalg.norm( x, ord = 1)
+        #norme 2
+        tmp_diff_2 = np.linalg.norm(theorique_solution - x)
+        norme_x_2 =  np.linalg.norm(x)
+        #norme definie par la matrice A appartenat à Sn+  
+        tmp_diff_A = calcul_normeA(theorique_solution - x, A)
+        norme_x_A =  calcul_normeA(x, A)
+        #stockage des valeurs 
+        simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
+        simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
+        simulation_vector_normA.append( tmp_diff_A/norme_x_A)
         if np.sqrt(rsnew) < 1e-10:
             break
         p = r + (rsnew / rsold) * p
         rsold = rsnew
-    return [x, simulation_vector]
+    return [x, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
 
-def simulation_conjrad(n):
-    A = matrix_sn_generator(10,n)
-    x = vector_generator(n)
+def simulation_conjrad_norm1(n):
+    np.random.seed(100)
+    A = matrix_sn_generator(n/2, n)
+    x_random = vector_generator(n)
     b = vector_generator(n)
-    solution = conjgrad_simulation(A,b,x)[0]
-    x_solution = solution[0]
-    x_solution_iter = solution[1]
-    T = np.linspace(0, 2*n)
-    #print(x_solution_iter)
-    print(x_solution)
-    # plt.plot(x_solution_iter, T)
-    # plt.show()
+    solution = conjgrad_simulation(A,b,x_random)
+    x = np.linspace(0, len(solution[1]), len(solution[1]))
+    plt.plot(x,solution[1], label= 'avec n = '+ str(n))
+    plt.xlabel("Le nombre ditérations")
+    plt.ylabel("L'erreur relative de la solution")
+    plt.legend()
 
-simulation_conjrad(100)
+def simulation_conjrad_norm2(n):
+    np.random.seed(100)
+    A = matrix_sn_generator(n/2, n)
+    x_random = vector_generator(n)
+    b = vector_generator(n)
+    solution = conjgrad_simulation(A,b,x_random)
+    x = np.linspace(0, len(solution[2]), len(solution[2]))
+    plt.plot(x,solution[2], label= 'avec n = '+ str(n))
+    plt.xlabel("Le nombre ditérations")
+    plt.ylabel("L'erreur relative de la solution")
+    plt.legend()
+
+def simulation_conjrad_normA(n):
+    np.random.seed(100)
+    A = matrix_sn_generator(n/2, n)
+    x_random = vector_generator(n)
+    b = vector_generator(n)
+    solution = conjgrad_simulation(A,b,x_random)
+    x = np.linspace(0, len(solution[3]), len(solution[3]))
+    plt.plot(x,solution[3], label= 'avec n = '+ str(n))
+    plt.xlabel("Le nombre ditérations")
+    plt.ylabel("L'erreur relative de la solution")
+    plt.legend()
+
+# simulation_conjrad_norm1(10)
+# simulation_conjrad_norm1(100)
+# simulation_conjrad_norm1(1000)
+# plt.show()
+
+# simulation_conjrad_norm2(10)
+# simulation_conjrad_norm2(100)
+# simulation_conjrad_norm2(1000)
+# plt.show()
+
+# simulation_conjrad_normA(10)
+# simulation_conjrad_normA(100)
+# simulation_conjrad_normA(1000)
+# plt.show()
+
+def norms_compare(n):
+    np.random.seed(100)
+    A = matrix_sn_generator(n/2, n)
+    x_random = vector_generator(n)
+    b = vector_generator(n)
+    solution = conjgrad_simulation(A, b, x_random)
+    x = np.linspace(0, len(solution[1]), len(solution[1]))
+    print(solution[1])
+    print(solution[2])
+    print(solution[3])
+
+    plt.plot(x,solution[1], label= 'avec la norme 1')
+    plt.plot(x,solution[2], label= 'avec la norme 2')
+    plt.plot(x,solution[3], label= 'avec la norme définie par A')
+    plt.xlabel("Le nombre ditérations")
+    plt.ylabel("L'erreur relative de la solution")
+    plt.legend()
+    plt.show()
+norms_compare(40)
 
 
 
