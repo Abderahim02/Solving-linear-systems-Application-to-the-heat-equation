@@ -275,8 +275,8 @@ norms_compare(40)
     
     #Une fois la matrice A construite et le vecteur b construit ,ce n'est plus qu'un système linéaire
     
-    # Résolution du système linéaire ATx = b à l'aide de la méthode du gradient conjugué
-     # Résolution du système linéaire ATx = b à l'aide de la méthode de cholesky dans un deuxieme temps
+    # Résolution du système linéaire AT = b à l'aide de la méthode du gradient conjugué
+     # Résolution du système linéaire AT = b à l'aide de la méthode de cholesky dans un deuxieme temps
      
     T= fonction_du_gradient(A, b)
     
