@@ -243,7 +243,46 @@ norms_compare(40)
 
 
 
+    def solve_two_dimensional_equation(N, f): #fonction qui prend en entrée N et f fonction caractérisant le flux de la chaleur
+#
+    # Construction de la matrice A
+        matrice = np.zeros((N**2,N**2))
+        for i in range(len(matrice)):
+            for j in range(len(matrice)):
+                if j == i-1:
+            
+                   matrice[i][j] = 1/h**2
+                if j == i-N:
+                    matrice[i][j] = 1/h**2
+                if j==i:
+                    matrice[i][j] = -4/h**2
+                if j==i+1:
+                    matrice[i][j] = 1/h**2
+                if j==i+N:
+                    matrice[i][j] = 1/h**2
+            
+
+    # Construction du vecteur b
+
+     # Utilisation de la méthode de différences finis pour discrétisation de l'espace
+     #dans ce cas on va modéliser le problème dans un carré [0;1]×[0,1]
+    h = 1 / (N + 1)
+    x = np.linspace(h, 1 - h, N)
+    y = np.linspace(h, 1 - h, N)
+    X, Y = np.meshgrid(x, y, indexing='ij')
+    b=-f(X, Y)
+    b = b.flatten() #on transforme cette grille de N*N elements en un vecteur de N**2 éléments
     
+    #Une fois la matrice A construite et le vecteur b construit ,ce n'est plus qu'un système linéaire
+    
+    # Résolution du système linéaire ATx = b à l'aide de la méthode du gradient conjugué
+     # Résolution du système linéaire ATx = b à l'aide de la méthode de cholesky dans un deuxieme temps
+     
+    T= fonction_du_gradient(A, b)
+    
+ #  T= fonction_de_cholesky(A, b)
+   
+
 
 
 
