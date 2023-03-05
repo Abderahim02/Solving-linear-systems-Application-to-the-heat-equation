@@ -121,6 +121,50 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 
+def conjugate_gradient(A, b, M, x0, epsilon=1e-10, max_iterations=1000):
+    """
+    Solve Ax = b using the Conjugate Gradient Method with preconditioning.
+    
+    Parameters
+    ----------
+    A : numpy.ndarray
+        The matrix A in Ax = b.
+    b : numpy.ndarray
+        The vector b in Ax = b.
+    M : numpy.ndarray
+        The preconditioning matrix.
+    x0 : numpy.ndarray
+        The initial guess for x.
+    epsilon : float
+        The tolerance for the residual norm. Default is 1e-10.
+    max_iterations : int
+        The maximum number of iterations. Default is 1000.
+    
+    Returns
+    -------
+    x : numpy.ndarray
+        The solution to Ax = b.
+    """
+    r0 = b - A.dot(x0)
+    z0 = np.linalg.solve(M, r0)
+    p1 = z0
+    w = A.dot(p1)
+    alpha1 = np.dot(r0.T, z0) / np.dot(p1.T, w)
+    x1 = x0 + alpha1 * p1
+    r1 = r0 - alpha1 * w
+    k = 1
+    while np.linalg.norm(rk) > epsilon and k < max_iterations:
+        zk = np.linalg.solve(M, rk)
+        beta_k = np.dot(rk.T, zk) / np.dot(r_km1.T, z_km1)
+        p_kp1 = zk + beta_k * p_k
+        w = A.dot(p_kp1)
+        alpha_kp1 = np.dot(rk.T, zk) / np.dot(p_kp1.T, w)
+        x_kp1 = x_k + alpha_kp1 * p_kp1
+        rkp1 = rk - alpha_kp1 * w
+        k += 1
+        x_k, p_k, z_km1, r_km1, rk = x_kp1, p_kp1, zk, rk, rkp1
+    return x_k
+
 
 ##simulation..............................
 def vector_generator(n):
