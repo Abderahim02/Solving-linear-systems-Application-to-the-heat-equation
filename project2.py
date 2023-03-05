@@ -121,7 +121,7 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 
-def conjugate_gradient(A, b, M, x0, epsilon=1e-10, max_iterations=1000):
+def conjugate_gradient_precond(A, b, M, x0, epsilon=1e-10, max_iterations=1000):
     """
     Solve Ax = b using the Conjugate Gradient Method with preconditioning.
     
