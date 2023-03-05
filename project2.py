@@ -280,7 +280,7 @@ norms_compare(40)
      
     T= fonction_du_gradient(A, b)
     
- #  T= fonction_de_cholesky(A, b)
+ 
    
 
 
