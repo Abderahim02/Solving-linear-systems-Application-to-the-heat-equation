@@ -1,10 +1,14 @@
-\documentclass{article}
+\documentclass[a4paper]{article}
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{grffile}
 \usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
 %%%%%%%%%%%%%%%% Lengths %%%%%%%%%%%%%%%%
 \setlength{\textwidth}{16cm}
@@ -16,9 +20,9 @@
 \def\titre{Résolution de systèmes linéaires, application à l'équation de la chaleur}
 \def\groupe{1}
 \def\equipe{5}
-\def\responsible{sdribialaou}
-\def\secretary{cdomas}
-\def\others{mbouhaja, alagraoui001}
+\def\responsible{Sarah Dribi Alaoui}
+\def\secretary{Corentin Domas}
+\def\others{Mohammed Bouhaja, Abderahim Lagraoui}
 
 \begin{document}
 
@@ -39,79 +43,124 @@
       Secrétaire : \secretary \\
       Codeurs : \others
     \end{tabular}}
-  \vskip 4mm ~
 
-  ~~~\parbox{0.95\textwidth}{\small \textit{Résumé~:} \sffamily Le but de ce projet consiste à implémenter des algorithmes de résolution de systèmes linéaires de grande taille, et à les appliquer à un problème de résolution d’équation aux dérivées partielles. Dans ce projet, on considère uniquement des systèmes linéaires symétriques, définis positifs et creux (ne comportant que relativement peu d’éléments non nuls), et on exploite ces trois propriétés pour obtenir des algorithmes plus efficaces. }
-  \vskip 1mm ~
 \end{minipage}
 
 %%%%%%%%%%%%%%%% Main part %%%%%%%%%%%%%%%%
 
 \section{Résolution de systèmes linéaires}
-% Soit un système linéaire $A.x = b$ où $A$ est une matrice carrée de taille $(n,n)$ et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel. La résolution de ce système consiste à trouver des valeurs du vecteur $x$ qui le vérifie. Pour cela, les études en algèbre linéaire fournissent plusieurs méthodes qui peuvent être directes ou itératives.
 
-% Les méthodes directes sont souvent plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée.
+Pour résoudre un système linéaire $A.x = b$, il existe deux approches principales: les méthodes directes et les méthodes itératives. Les méthodes directes sont plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. Nous explorons les deux approches dans ce projet, avec la décomposition de $Cholesky$ comme exemple de méthode directe et la méthode du gradient conjugué comme exemple de méthode itérative.
 
-% Dans ce projet, on s'intéresse aux deux méthodes avec l'exemple de la décomposition de cholesky pour les méthodes directes et la méthode du gradient conjugué pour les méthodes itératives.
-Pour résoudre un système linéaire $A.x = b$, ils existent deux approches principales: les méthodes directes et les méthodes itératives. Les méthodes directes sont plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. Nous explorons les deux approches dans ce projet, avec la décomposition de $Cholesky$ comme exemple de méthode directe et la méthode du gradient conjugué comme exemple de méthode itérative.
 \subsection{Décomposition de Cholesky}
 Soit $(E) : A.x = b$ un système linéaire où $A$ est une matrice symétrique définie positive de taille $(n,n)$
 et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel.
 L'algorithme de $cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{t}.T$ où $T$
 est une matrice triangulaire inférieure obtenue par les formules suivantes :
 
-\[ \large t_{i, j} = \left\{
+\begin{equation*}
+t_{i, j} = \left\{
     \begin{array}{cr}
         \rule{0pt}{2.5ex} \sqrt{ a_{i,i} - \sum_{k=1}^{i-1} t_{i,k}^{2}} & \mbox{si } i=j \\
-        \rule{0pt}{4ex} \frac{ \LARGE a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
+        \rule{0pt}{4ex} \frac{a_{i,j} - \sum_{k=1}^{i-1} t_{i,k}t_{j,k} } {a_{i,i}}& \mbox{si i $\leq$ j}
     \end{array}
-\right.\]
+\right.
+\end{equation*}
+
 \subsubsection{Implémentation de l'algorithme}
-Le principe algorithmique de la fonction $cholesky(A)$ consiste à créer une matrice nulle $T$ de taille $(n,n)$, puis effectue 
-un parcours de la matrice $A$ avec deux boucles imbriquées. D'après les formules précédentes, le calcul du coefficient $t_{i,j}$ 
-à chaque itération $i$ est en complexité $O(i)$. Et puis le calcul de toutes les colonnes $C_{j}$ avec $i\leq j$ est en complexité 
-$O(\frac{n(n-i)}{2})$. En conclusion, l'algorithme est en complexité $O(\frac{n^{3}}{4})$.
+
+La fonction $cholesky(A)$ crée une matrice nulle $T$ de taille $(n,n)$, puis effectue un parcours de la matrice $A$ en la remplissant au fur et à mesure. D'après les formules précédentes, le calcul du coefficient $t_{i,j}$ à chaque itération $i$ se fait en complexité $O(i)$. De plus, le calcul de toutes les colonnes $C_{j}$ avec $i\leq j$ est en complexité $O(\frac{n(n-i)}{2})$. En conclusion, l'algorithme est en complexité $O(\frac{n^{3}}{4})$, soit en complexité cubique.
+
+\subsubsection{Factorisation incomplète}
+
+La factorisation incomplète est une variante de la méthode classique qui consiste à ne pas calculer le coefficient $t_{i,j}$ de la matrice T lorsque le coefficient $a_{i,j}$ de $A$ est nul\footnote{avec $ 0\leq i,j\leq n$}. En conséquence, ces coefficients restent à zéro.
+
+Cette condition fournit une version optimisée de l'algorithme. En effet, la somme présente dans les formules de construction de la matrice triangulaire ne sera calculée que $N_{0}$ fois, où $N_{0}$ est le nombre d'éléments non nuls de la matrice $A$. La nouvelle complexité de l'algorithme est alors en $O(\frac{N_{0}. n^{2}}{2})$, soit en complexité quadratique. On peut alors constater que cette méthode est plus efficace d'un facteur $n$.
+
 \subsection{Génération de matrices symétriques définies positives creuses}
-Les matrices symétriques définies positives creuses sont des matrices qui contiennent un certain nombre de coefficients nuls, 
-ils sont utiles dans le préconditionnement des systèmes linéaires. Afin de générer des telles matrices avec un nombre de termes 
-extra-diagonaux non nuls réglable, on profite de la propriété qui dit que toute matrice symétrique dont tous les coefficients sont 
-positives est une matrice définie positive. Ainsi, l'algorithme crée une matrice nulle est la remplit avec des valeurs positives, 
-en veillant à ce que la matrice reste symétrique, jusqu'à atteindre le nombre de coefficients non nuls désiré.
+
+Les matrices symétriques définies positives creuses sont des matrices qui contiennent un certain nombre de coefficients nuls. Elles sont notamment utiles dans le pré-conditionnement des systèmes linéaires. Pour créer de telles matrices, on exploite la propriété selon laquelle une matrice symétrique dont tous les coefficients sont positifs est toujours une matrice définie positive. Ainsi, l'algorithme crée une matrice nulle et la remplit avec des valeurs positives, en veillant à ce que la matrice reste symétrique, jusqu'à atteindre le nombre de termes extra-diagonaux non nuls désiré.
+
 
 \subsection{Méthode du gradient conjugué}
 
-On définit l'erreur relative $rsnew$ telle que :
+L'une des méthodes itératives les plus utilisées dans la résolution d'un système d'équation linéaire de type $A.x = b$ est la méthode du gradient conjugué.
+
+
+Cette méthode consiste à trouver une solution $x$ en minimisant l'erreur relative 
+$rsnew$ défini par $rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}$ d'une manière itérative. Une direction de descente $p=b-Ax$ est choisie comme la première direction de recherche, puis elle est remplacée à chaque étape par une combinaison de la direction précédente et une autre direction $r=r+\beta*p$. La condition d'arrêt de l'algorithme est lorsque $rsnew$ est inférieur à une valeur tolérée d'erreur fixée à $10^{-10}$. On obtient alors une solution optimale.
+
+
+\subsection{Simulation de la méthode du gradient conjugué}
+
+Afin de bien simuler cette méthode, nous avons implémenté une autre version de l'algorithme qui stocke les valeurs de l'erreur relative de la solution obtenue à chaque itération. La solution théorique fournie par la fonction $linalg.solve$ de la bibliothèque $numpy$ est considérée comme exacte, et sert donc de référence. On considère les trois normes matricielles $\| . \|_{1}$, $\| . \|_{2}$ et $\| . \|_{A}$ définies par:
+\[ \| X \|_{1} = \sum_{i=1}^{n} |x_{i}| \hspace{1cm}  \| X \|_{2} = \sqrt{\sum_{i=1}^{n} (x_{i})^{2}} \hspace{1cm}  \| X \|_{A} =  X^{T}AX\]
+avec $X$ un vecteur colonne de taille $n$ et $A \in \mathcal{S}_{n}^{++}$.
+
+\begin{figure}[!h] 
+  \includegraphics[width=11cm, height= 6.5cm]{normes.png}
+  \centering
+  \caption{Évaluation de l'erreur relative en fonction de la norme}
+  \label{fig:norme}
+\end{figure}
+
+La figure \ref{fig:norme} donne l'erreur relative de la méthode en fonction du nombre d'itérations, pour différentes normes. On rappelle, pour une norme $\| \cdot \|$, que l'erreur relative $\delta$ est donnée pour toute matrice $X$ par la formule suivante : 
+
 \begin{equation*}
-  rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}
+    \delta(X) = \frac{\|X - X_{sol}\|}{\| X \|}
 \end{equation*}
-La méthode du gradient conjugué consiste à trouver une solution $x$ en minimisant
-$rsnew$ de manière itérative. 
-Cette méthode calcule d'abord une direction de descente en choisissant  ($p=b-Ax$) comme 
-première direction de recherche. Ce calcul est ensuite mis à jour : à chaque étape, on calcule une nouvelle 
-direction en combinant la direction précédente avec la nouvelle direction de 
-recherche ($r=r+\beta*p$). Après un nombre fini d'itérations\footnote{correspondant à la taille du vecteur b}
-notre algorithme converge vers la solution optimale avec une erreur relative minimale.
 
+où $X_{sol}$ est la matrice donnée par la méthode de résolution considérée comme exacte.
 
-\paragraph{Exemple}
-On montre dans cette partie la valeur du vecteur x à chaque itérations dans la fonction
-du gradient conjugué. Donc on prend une matrice d'ordre 3 et un vecteur b qui sont définie comme suit:
+On constate alors que, quelque soit la norme considérée, l'erreur relative décroît très rapidement de manière exponentielle pour cette méthode. Si on observe une très nette différence pour la norme définie par $A$ sur les premières itérations, elle tend à se résorber dès que le nombre d'itérations augmente.
 
-$A=
-\begin{pmatrix}
-  3&2&-5 \\ 1&5&10 \\ 6&4&5
-\end{pmatrix}
-$
-$b=
-\begin{pmatrix}
-  20 
-  \\ -7 \\
-    5
-\end{pmatrix}
-$
+\subsection{Ajout d'un pré-conditionnement et évaluation de l'erreur}
+Un pré-conditionneur $M$ est une matrice facile à inverser telle que $cond(M^{-1}A)$ soit inférieur à cond(A), où cond(A) est le conditionnement de la matrice A
 
+\begin{figure}[!h] 
+  \centering
+  \includegraphics[width=11cm, height= 7cm]{precond.png}
+  \caption{Évaluation de l'erreur en fonction du pré-conditionnement}
+  \label{fig:precond}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Application à l'équation de la chaleur}
-\subsection{Méthode du gradient conjugué}
+
+Le but de cette partie est de résoudre l'équation de la chaleur en utilisant la méthode dite "des différences finies". 
+
+Considérons une plaque carrée de côté une unité de longueur, sur laquelle est définie successivement des conditions initiales et conditions aux limites particulières. La figure \ref{fig:chaleur} donne un résultat de ces simulations, pour différentes méthodes de résolution. Dans cette partie, nous nous intéressons principalement à la méthode de résolution par la méthode du gradient conjugué, ainsi qu'à la méthode de résolution \texttt{linalg} donnée par la bibliothèque \texttt{numpy}, cette dernière servant de référence.
+
+\begin{figure}[!ht]
+  $\hspace*{0.6cm}$\includegraphics[width=0.9\textwidth]{gc.jpg}
+  \includegraphics[width=.47\textwidth]{centre-np.png}
+  \includegraphics[width=.49\textwidth]{uniforme-np.png}
+  \caption{Résolution de l'équation de la chaleur}
+
+
+
+  
+  \label{fig:chaleur}
+\end{figure}
+
+\subsection{Discrétisation de l'espace}
+
+Nous avons d'abord discrétisé l'espace dans un carré [0;1]×[0,1]. Le nombre de points de la discrétisation spatiale est donné par $N*N$, ceci afin de simplifier la résolution numérique de l'équation \footnote{voir le code python fourni en annexe de ce rapport}.
+
+\subsection{Recherche de $b$ et de $A$}
+
+Une fois ce vecteur représentant les coordonnées spatiales construit,nous lui appliquerons la fonction représentant le flux de la chaleur dépendant des deux dimensions x et y.
+Ainsi en mettant un moins,nous avons ainsi obtenu notre vecteur b de taille $N^2$,deuxième membre de l'équation matricielle $AT=b$ ,traduction matricielle de l'équation de la chaleur 
+
+La matrice A n'est que la traduction matricielle de l'opérateur laplacien en utilisant une approximation de la la formule de Taylor à l'ordre 2 et en la combinant avec la discrétisation numérique établie.
+
+Finalement, on obtient un système linéaire qu'il est possible de résoudre avec les méthodes décrites dans la section précédente.
+
+\subsection{Comparaison des profils de température obtenus en 2D}
+
+La figure \ref{fig:chaleur} montre les résultats obtenus en utilisant les deux méthodes de résolution, pour des conditions initiales et conditions aux limites particulières différentes que nous avons conditionné par le choix de deux exemples de flux différents.
+On observe alors que les résultats obtenus par la méthode du gradient conjugué et la méthode \texttt{linalg} de \texttt{numpy} sont très similaires, et ne représentent pas d'incohérence avec le principe de diffusion thermique dans chacun des cas \footnote{voir le code python fourni en annexe pour plus de détails}
+
 
 \end{document}

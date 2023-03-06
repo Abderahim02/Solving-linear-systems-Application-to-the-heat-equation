@@ -3,4 +3,5 @@
 *.gz
 *.pdf
 *.log
+*.out
 equation-chaleur.py
