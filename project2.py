@@ -112,7 +112,7 @@ def test_matrix_sn_generator():
     print("\n")
 
 
-test_matrix_sn_generator(8, 4)
+test_matrix_sn_generator()
 
 
 ## préconditionneur
@@ -147,64 +147,38 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 
-# def conjgrad_prec_simulation(A, b, M, x0, epsilon=1e-10, max_iterations=1000):
-#     r0 = b - A.dot(x0)
-#     z0 = np.linalg.solve(M, r0)
-#     p1 = z0
-#     w = A.dot(p1)
-#     alpha1 = np.dot(r0.T, z0) / np.dot(p1.T, w)
-#     x1 = x0 + alpha1 * p1
-#     r1 = r0 - alpha1 * w
-#     k = 1
-
-#     simulation_vector_norm1 = []
-#     simulation_vector_norm2 = []
-#     simulation_vector_normA = []
-#     theorique_solution = np.linalg.solve(A,b)
-
-#     while np.linalg.norm(rk) > epsilon and k < max_iterations:
-#         zk = np.linalg.solve(M, rk)
-#         beta_k = np.dot(rk.T, zk) / np.dot(r_km1.T, z_km1)
-#         p_kp1 = zk + beta_k * p_k
-#         w = A.dot(p_kp1)
-#         alpha_kp1 = np.dot(rk.T, zk) / np.dot(p_kp1.T, w)
-#         x_kp1 = x_k + alpha_kp1 * p_kp1
-#         rkp1 = rk - alpha_kp1 * w
-#         k += 1
-#         x_k, p_k, z_km1, r_km1, rk = x_kp1, p_kp1, zk, rk, rkp1
-#         #norme 1 
-#         tmp_diff_1 = np.linalg.norm(theorique_solution - x_k, ord=1)
-#         norme_x_1 =  np.linalg.norm( x_k, ord = 1)
-#         #norme 2
-#         tmp_diff_2 = np.linalg.norm(theorique_solution - x_k)
-#         norme_x_2 =  np.linalg.norm(x_k)
-#         #norme definie par la matrice A appartenat à Sn+  
-#         tmp_diff_A = calcul_normeA(theorique_solution - x_k, A)
-#         norme_x_A =  calcul_normeA(x_k, A)
-#         #stockage des valeurs 
-#         simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
-#         simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
-#         simulation_vector_normA.append( tmp_diff_A/norme_x_A)
-#     return [x_k, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
-
-
-def conjgrad_precond(A, b, x, M):
-    n = len(b)
-    r = b - A.dot(x) 
-    p = r
-    rsold = np.dot(r.T, r)
-    for i in range(n):
-        Ap = A.dot(p)
-        Map = M.dot(Ap)
-        alpha = rsold/(np.dot(p.T, Map))
-        x = x + alpha * np.dot(M,p)
-        r = r - alpha * Map
-        rsnew = np.dot(r.T, r)
-        if np.sqrt(rsnew) < 1e-10:
+def conjgrad_prec(A, b, x, P, nmax, tol):
+    flag = 0
+    iter = 0
+    bnrm2 = np.linalg.norm(b)
+    if bnrm2 == 0:
+        bnrm2 = 1
+    r = b - np.dot(A, x)
+    relres = []
+    relres1 = np.linalg.norm(r) / bnrm2
+    relres.append(np.linalg.norm(r) / bnrm2)
+    if relres1 < tol:
+        return
+    for iter in range(nmax):
+        z = np.linalg.solve(P, r)
+        rho = np.dot(r.T, z)
+        if iter > 1:
+            beta = rho / rho1
+            p = z + beta * p
+        else:
+            p = z
+        q = np.dot(A, p)
+        alpha = rho / np.dot(p.T, q)
+        x = x + alpha * p
+        r = r - alpha * q
+        relres1 = np.linalg.norm(r) / bnrm2
+        relres.append(np.linalg.norm(r) / bnrm2)
+        if relres1 <= tol:
             break
-        p = r + (rsnew / rsold) * p
-        rsold = rsnew
-    return x
+        rho1 = rho
+    if relres1 > tol:
+        flag = 1
+    return x, relres, iter, flag
 
 ##simulation..............................
 def vector_generator(n):
@@ -219,7 +193,7 @@ def matrix_generator(n):
 def calcul_normeA(y, A):
     return np.dot( np.dot(np.transpose(y), A), y)
 
-def conjgrad_simulation(A, b, x):
+def conjgrad_simulation(A, b, x, nmax):
     n = len(b)
     A_cmp = np.zeros((n, n))
     r = b - A.dot(x)
@@ -229,7 +203,7 @@ def conjgrad_simulation(A, b, x):
     simulation_vector_norm2 = []
     simulation_vector_normA = []
     theorique_solution = np.linalg.solve(A,b)
-    for i in range(n):
+    for i in range(nmax):
         Ap = A.dot(p)
         alpha = rsold / p.dot(Ap)
         x = x + alpha * p
@@ -254,48 +228,47 @@ def conjgrad_simulation(A, b, x):
         rsold = rsnew
     return [x, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
 
-def conjgrad_prec_simulation(A, b, x, M):
-    n = len(b)
-    A_cmp = np.zeros((n, n))
-    r = b - A.dot(x)
-    p = r
-    rsold = r.dot(r)
-    simulation_vector_norm1 = []
-    simulation_vector_norm2 = []
-    simulation_vector_normA = []
-    theorique_solution = np.linalg.solve(A,b)
-    for i in range(n):
-        Ap = A.dot(p)
-        Map = M.dot(Ap)
-        alpha = rsold/(np.dot(p.T, Map))
-        x = x + alpha * np.dot(M,p)
-        r = r - alpha * Map
-        rsnew = np.dot(r.T, r)
-        #norme 1 
-        tmp_diff_1 = np.linalg.norm(theorique_solution - x, ord=1)
-        norme_x_1 =  np.linalg.norm( x, ord = 1)
-        #norme 2
-        tmp_diff_2 = np.linalg.norm(theorique_solution - x)
-        norme_x_2 =  np.linalg.norm(x)
-        #norme definie par la matrice A appartenat à Sn+  
-        tmp_diff_A = calcul_normeA(theorique_solution - x, A)
-        norme_x_A =  calcul_normeA(x, A)
-        #stockage des valeurs 
-        simulation_vector_norm1.append( tmp_diff_1/norme_x_1)
-        simulation_vector_norm2.append( tmp_diff_2/norme_x_2)
-        simulation_vector_normA.append( tmp_diff_A/norme_x_A)
-        if np.sqrt(rsnew) < 1e-20:
+
+def conjugate_gradient_for_compare(A, b, x, max_iterations, tol):
+    flag = 0
+    iteration = 0
+    bnrm2 = np.linalg.norm(b)
+    if bnrm2 == 0:
+        bnrm2 = 1
+    r = b - np.dot(A, x)
+    relres = []
+    relres1 = np.linalg.norm(r) / bnrm2
+    relres.append(np.linalg.norm(r) / bnrm2)
+    if relres1 < tol:
+        return
+    for iteration in range(max_iterations):
+        z = r
+        rho = np.dot(r.T, z)
+        if iteration > 1:
+            beta = rho / rho1
+            p = z + beta * p
+        else:
+            p = z
+        q = np.dot(A, p)
+        alpha = rho / np.dot(p.T, q)
+        x = x + alpha * p
+        r = r - alpha * q
+        relres1 = np.linalg.norm(r) / bnrm2
+        relres.append(relres1)
+        if relres1 <= tol:
             break
-        p = r + (rsnew / rsold) * p
-        rsold = rsnew
-    return [x, simulation_vector_norm1, simulation_vector_norm2, simulation_vector_normA]
+        rho1 = rho
+    if relres1 > tol:
+        flag = 1
+    return x, relres, iteration, flag
+
 
 def simulation_conjrad_norm1(n):
     np.random.seed(100)
     A = matrix_sn_generator(n/2, n)
     x_random = vector_generator(n)
     b = vector_generator(n)
-    solution = conjgrad_simulation(A,b,x_random)
+    solution = conjgrad_simulation(A,b,x_random, 40)
     x = np.linspace(0, len(solution[1]), len(solution[1]))
     plt.plot(x,solution[1], label= 'avec n = '+ str(n))
     plt.xlabel("Le nombre ditérations")
@@ -307,7 +280,7 @@ def simulation_conjrad_norm2(n):
     A = matrix_sn_generator(n/2, n)
     x_random = vector_generator(n)
     b = vector_generator(n)
-    solution = conjgrad_simulation(A,b,x_random)
+    solution = conjgrad_simulation(A,b,x_random, 40)
     x = np.linspace(0, len(solution[2]), len(solution[2]))
     plt.plot(x,solution[2], label= 'avec n = '+ str(n))
     plt.xlabel("Le nombre ditérations")
@@ -319,34 +292,19 @@ def simulation_conjrad_normA(n):
     A = matrix_sn_generator(n/2, n)
     x_random = vector_generator(n)
     b = vector_generator(n)
-    solution = conjgrad_simulation(A,b,x_random)
+    solution = conjgrad_simulation(A,b,x_random, 40)
     x = np.linspace(0, len(solution[3]), len(solution[3]))
     plt.plot(x,solution[3], label= 'avec n = '+ str(n))
     plt.xlabel("Le nombre ditérations")
     plt.ylabel("L'erreur relative de la solution")
     plt.legend()
 
-# simulation_conjrad_norm1(10)
-# simulation_conjrad_norm1(100)
-# simulation_conjrad_norm1(1000)
-# plt.show()
-
-# simulation_conjrad_norm2(10)
-# simulation_conjrad_norm2(100)
-# simulation_conjrad_norm2(1000)
-# plt.show()
-
-# simulation_conjrad_normA(10)
-# simulation_conjrad_normA(100)
-# simulation_conjrad_normA(1000)
-# plt.show()
-
 def norms_compare(n):
     np.random.seed(100)
     A = matrix_sn_generator(n/2, n)
     x_random = vector_generator(n)
     b = vector_generator(n)
-    solution = conjgrad_simulation(A, b, x_random)
+    solution = conjgrad_simulation(A, b, x_random, 40)
     x = np.linspace(0, len(solution[1]), len(solution[1]))
     plt.plot(x,solution[1], label= 'avec la norme 1')
     plt.plot(x,solution[2], label= 'avec la norme 2')
@@ -362,23 +320,20 @@ def conditionner_generator(A):
     T_inv= np.linalg.inv(T)
     return np.dot(np.transpose(T_inv), T_inv )
 def conj_compare(n):
-    np.random.seed(100)
+    np.random.seed(5)
     A = matrix_sn_generator(n/2, n)
     x_random = vector_generator(n)
     b = vector_generator(n)
     M = conditionner_generator(A)
 
-    solution = conjgrad_simulation(A, b, x_random)
-    solution_prec = conjgrad_prec_simulation(A, b, x_random, M)
-    #solution_prec = conjgrad_prec_simulation(A, b,M, x_random)
-    print(solution[2])
-    print(solution_prec[2])
-    x_1 = np.linspace(0, len(solution[2]), len(solution[2]))
-    x_2 = np.linspace(0, len(solution_prec[2]), len(solution_prec[2]))
-    plt.plot(x_1,solution[2], label= 'sans préconditionnement')
-    plt.plot(x_2,solution_prec[2], label= 'avec préconditionnement')
+    solution = conjugate_gradient_for_compare(A, b, x_random, 50, 1e-10)
+    solution_prec = conjgrad_prec(A, b, x_random, M, 50, 1e-10 )
+    x_1 = np.linspace(0, len(solution[1]), len(solution[1]))
+    x_2 = np.linspace(0, len(solution_prec[1]), len(solution_prec[1]))
+    plt.plot(x_1,solution[1], label= 'avec préconditionnement')
+    plt.plot(x_2,solution_prec[1], label= 'sans préconditionnement')
     plt.xlabel("Le nombre ditérations")
-    plt.ylabel("L'erreur relative de la solution")
+    plt.ylabel("La valeur du résidus")
     plt.legend()
     plt.show()
 conj_compare(40)
