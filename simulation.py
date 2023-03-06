@@ -1,6 +1,8 @@
+#%%
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.linalg import solve
+#%%
 def conjgrad(A, b, x):
     n = len(b)
     r = b - np.dot(A, x)
@@ -167,11 +169,4 @@ plt.show()
 
 
 
-T_linear_1 = find_A_and_b_1(N, f_linear).reshape((N, N))
-#Plot temperature as a heatmap
-
-fig, ax = plt.subplots()
-im = ax.imshow(T_linear_1, cmap='hot', vmin=0, vmax=1)
-ax.set_title('Temperature cas flux Décroissant obtenue avec résolution de numpy')
-fig.colorbar(im)
-plt.show()
+# %%
