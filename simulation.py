@@ -18,7 +18,7 @@ def conjgrad(A, b, x):
         rsold = rsnew
     return x
 def f_uniform(x, y):
-    return np.sin(2 * np.pi * x) * np.sin(2 * np.pi * y)
+    return 1+0*x+0*y
 def f_center(x, y):
     # Distance du centre
     r = np.sqrt((x - 0.5)**2 + (y - 0.5)**2)
