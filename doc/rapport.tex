@@ -94,7 +94,7 @@ $rsnew$ défini par $rsnew~=~((b-A.x)^{T}(b-A.x))^{\frac{1}{2}}$ d'une manière 
 \subsection{Simulation de la méthode du gradient conjugué}
 
 Afin de bien simuler cette méthode, nous avons implémenté une autre version de l'algorithme qui stocke les valeurs de l'erreur relative de la solution obtenue à chaque itération. La solution théorique fournie par la fonction $linalg.solve$ de la bibliothèque $numpy$ est considérée comme exacte, et sert donc de référence. On considère les trois normes matricielles $\| . \|_{1}$, $\| . \|_{2}$ et $\| . \|_{A}$ définies par:
-\[ \| X \|_{1} = \sum_{i=1}^{n} |x_{i}| \hspace{1cm}  \| X \|_{2} = \sqrt{\sum_{i=1}^{n} (x_{i})^{2}} \hspace{1cm}  \| X \|_{A} =  X^{T}AX\]
+\[ \| X \|_{1} = \sum_{i=1}^{n} |x_{i}| \hspace{1cm}  \| X \|_{2} = \sqrt{\sum_{i=1}^{n} (|x_{i}|)^{2}} \hspace{1cm}  \| X \|_{A} =  X^{T}AX\]
 avec $X$ un vecteur colonne de taille $n$ et $A \in \mathcal{S}_{n}^{++}$.
 
 \begin{figure}[!h] 
