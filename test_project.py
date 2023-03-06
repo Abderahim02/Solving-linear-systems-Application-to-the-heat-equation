@@ -1,10 +1,6 @@
 import project2
 import numpy as np
 
-
-
-
-
 ### Méthode du gradient conjugué ###
 
 A = np.array([[3, 2], [2, 6]])

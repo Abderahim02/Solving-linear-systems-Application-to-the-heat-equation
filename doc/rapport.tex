@@ -2,7 +2,6 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{grffile}
 \usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage[T1]{fontenc}
@@ -41,7 +40,7 @@
         \hfill~} \\[2mm] 
       Responsable : \responsible \\
       Secrétaire : \secretary \\
-      Codeurs : \others
+      Programmeurs : \others
     \end{tabular}}
 
 \end{minipage}
@@ -53,9 +52,10 @@
 Pour résoudre un système linéaire $A.x = b$, il existe deux approches principales: les méthodes directes et les méthodes itératives. Les méthodes directes sont plus précises mais peuvent être plus coûteuses en termes de temps de calcul et de mémoire, tandis que les méthodes itératives sont plus efficaces pour les systèmes linéaires très grands, mais nécessitent souvent une bonne approximation initiale et une méthode de convergence adaptée. Nous explorons les deux approches dans ce projet, avec la décomposition de $Cholesky$ comme exemple de méthode directe et la méthode du gradient conjugué comme exemple de méthode itérative.
 
 \subsection{Décomposition de Cholesky}
-Soit $(E) : A.x = b$ un système linéaire où $A$ est une matrice symétrique définie positive de taille $(n,n)$
-et $b$ et $x$ deux vecteurs colonnes de taille $n$ avec $n$ un entier naturel.
-L'algorithme de $cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{t}.T$ où $T$
+
+Soit $n$ un entier naturel. On considère $(E) : A.x = b$ un système linéaire où $A$ est une matrice de $S_n^{++}$, l'ensemble des matrices symétriques définies positives de taille
+ $n$, et $b$ et $x$ deux vecteurs colonnes de taille $n$.
+L'algorithme de $Cholesky$ consiste à factoriser la matrice $A$ sous la forme d’un produit $ T^{T} \cdot T$ où $T$
 est une matrice triangulaire inférieure obtenue par les formules suivantes :
 
 \begin{equation*}
@@ -115,7 +115,9 @@ où $X_{sol}$ est la matrice donnée par la méthode de résolution considérée
 On constate alors que, quelque soit la norme considérée, l'erreur relative décroît très rapidement de manière exponentielle pour cette méthode. Si on observe une très nette différence pour la norme définie par $A$ sur les premières itérations, elle tend à se résorber dès que le nombre d'itérations augmente.
 
 \subsection{Ajout d'un pré-conditionnement et évaluation de l'erreur}
-Un pré-conditionneur $M$ est une matrice facile à inverser telle que $cond(M^{-1}A)$ soit inférieur à cond(A), où cond(A) est le conditionnement de la matrice A
+Un pré-conditionneur $M$ d'une matrice $A$, est une matrice facile à inverser telle que $cond(M^{-1}A$ soit inférieur à $cond(A)$ \textbf{(1)}, où $cond(A)$ est le conditionnement de la matrice $A$. Il sert généralement à optimiser les algorithmes de résolution des systèmes linéaires. Il existe plusieurs méthodes qui génèrent ce type de matrices, à l'aide d'un processus qui peut être itératif ou non itératif. Cependant, nous allons utiliser la matrice $(T^{-1})^{t}T^{-1}$ comme pré-conditionneur, avec $T$ la matrice triangulaire supérieure obtenue par l'algorithme de $cholesky$ appliquée à $A$. 
+
+Afin de vérifier la qualité de ce pré-conditionneur, nous avons réalisé une expérimentation avec un très grand nombre de matrices. Dans tous les cas la condition \textbf{(1)} est vérifiée.
 
 \begin{figure}[!h] 
   \centering
@@ -124,13 +126,17 @@ Un pré-conditionneur $M$ est une matrice facile à inverser telle que $cond(M^{
   \label{fig:precond}
 \end{figure}
 
+La figure \ref{fig:precond} représente la valeur du résidu à chaque itération, lors de l'application des deux types de la méthode du gradient conjugué, sur un même problème.
+
+On remarque qu'avec les deux méthodes, la valeur du résidus décroît exponentiellement. Cependant, la méthode qui utilise le pré-conditionnement, tend à faire décroître cette valeur plus rapidement.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Application à l'équation de la chaleur}
 
-Le but de cette partie est de résoudre l'équation de la chaleur en utilisant la méthode dite "des différences finies". 
+Le but de cette partie est de résoudre l'équation de la chaleur en utilisant la méthode dite \emph{des différences finies}. 
 
-Considérons une plaque carrée de côté une unité de longueur, sur laquelle est définie successivement des conditions initiales et conditions aux limites particulières. La figure \ref{fig:chaleur} donne un résultat de ces simulations, pour différentes méthodes de résolution. Dans cette partie, nous nous intéressons principalement à la méthode de résolution par la méthode du gradient conjugué, ainsi qu'à la méthode de résolution \texttt{linalg} donnée par la bibliothèque \texttt{numpy}, cette dernière servant de référence.
+Considérons une plaque carrée de côté une unité, sur laquelle est définie successivement des conditions initiales et conditions aux limites particulières. La figure \ref{fig:chaleur} donne un résultat de ces simulations, pour différentes méthodes de résolution. Dans cette partie, nous nous intéressons principalement à la méthode de résolution par la méthode du gradient conjugué, ainsi qu'à la méthode de résolution \texttt{linalg} donnée par la bibliothèque \texttt{numpy}, cette dernière servant de référence.
 
 \begin{figure}[!ht]
   $\hspace*{0.6cm}$\includegraphics[width=0.9\textwidth]{gc.jpg}
@@ -139,8 +145,6 @@ Considérons une plaque carrée de côté une unité de longueur, sur laquelle e
   \caption{Résolution de l'équation de la chaleur}
 
 
-
-  
   \label{fig:chaleur}
 \end{figure}
 
@@ -160,7 +164,11 @@ Finalement, on obtient un système linéaire qu'il est possible de résoudre ave
 \subsection{Comparaison des profils de température obtenus en 2D}
 
 La figure \ref{fig:chaleur} montre les résultats obtenus en utilisant les deux méthodes de résolution, pour des conditions initiales et conditions aux limites particulières différentes que nous avons conditionné par le choix de deux exemples de flux différents.
-On observe alors que les résultats obtenus par la méthode du gradient conjugué et la méthode \texttt{linalg} de \texttt{numpy} sont très similaires, et ne représentent pas d'incohérence avec le principe de diffusion thermique dans chacun des cas \footnote{voir le code python fourni en annexe pour plus de détails}
+On observe alors que les résultats obtenus par la méthode du gradient conjugué et la méthode \texttt{linalg} de \texttt{numpy} sont très similaires, et ne représentent pas d'incohérence avec le principe de diffusion thermique dans chacun des cas.
+\footnote{voir le code python fourni en annexe pour plus de détails}
 
+\section*{Conclusion}
+
+En conclusion, l'étude de différentes méthodes de résolution de systèmes linéaires permet de montrer l'efficacité de chacune d'entre elles. Ainsi, nous avons pu explorer les deux grands types de ces algorithmes : ceux de type direct avec l'algorithme de $cholesky$ et ceux qui utilisent des principes itératives avec la méthode du gradient conjugué. Enfin, cette étude nous a également permis d'explorer certains aspects permettant d'optimiser ces algorithmes.
 
 \end{document}
