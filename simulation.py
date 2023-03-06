@@ -19,15 +19,22 @@ def conjgrad(A, b, x):
     return x
 def f_uniform(x, y):
     return np.sin(2 * np.pi * x) * np.sin(2 * np.pi * y)
-
 def f_center(x, y):
-    return np.exp(-((x - 0.5) ** 2 + (y - 0.5) ** 2) / 0.1) + 0.3
-
-def f_periodic(x, y):
-    return -2 * np.pi ** 2 * np.sin(np.pi * x) * np.sin(np.pi * y)
-
+    # Distance du centre
+    r = np.sqrt((x - 0.5)**2 + (y - 0.5)**2)
+    # Temperature elevée au centre mais decroit loin de la source
+    f = np.where(r <= 0.2, np.exp(-10*(r-0.25)**2), 0)
+    # intensification de la chaleur
+    f *= 5
+    return f
 def f_linear(x, y):
-    return np.exp(-x*0.2)
+    T_left = 2
+    T_right = 0.0
+    f = T_left - (T_left - T_right) * x
+    return f
+
+
+
 
 def find_A_and_b(N, f):
     # N*N désigne le nombre de points de la discrétisation spatiale
